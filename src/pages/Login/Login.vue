@@ -53,7 +53,11 @@
 </template>
 
 <script>
-  export default {}
+  export default {
+    data(){
+
+    }
+  }
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

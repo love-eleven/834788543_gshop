@@ -11,10 +11,11 @@
 // [10、用户登出](#10用户登出)<br/>
 
 import ajax from './ajax'
+const BASE_URL='/api'
 
-export const reqAddress = (geohash)=>ajax(`/position/${geohash}`)
+export const reqAddress = (geohash)=>ajax(`${BASE_URL}/position/${geohash}`)
 
-export const reqFoodTypes = ()=>ajax('/index_category')
+export const reqFoodCategorys = ()=>ajax(BASE_URL+'/index_category')
 
-export const reqShops = (a,b)=>ajax('/shops',{a,b})
+export const reqShops = (longitude,latitude)=>ajax(BASE_URL+'/shops',{longitude,latitude})
 

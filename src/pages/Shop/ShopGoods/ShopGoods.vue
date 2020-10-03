@@ -18,7 +18,8 @@
           <li class="food-list-hook" v-for="(good,index) in goods" :key="index">
             <h1 class="title">{{good.name}}</h1>
             <ul>
-              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods" :key="index">
+              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods"
+                  :key="index"  @click="showFood(food)">
                 <div class="icon">
                   <img width="57" height="57" src="foods.icon"/>
                 </div>
@@ -34,17 +35,19 @@
                     <span class="old" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
                   </div>
                   <div class="cartcontrol-wrapper">
-                    CartControl
+                    <CartControl :food="food"></CartControl>
                   </div>
                 </div>
               </li>
             </ul>
-            <CartControl></CartControl>
+
           </li>
         </ul>
       </div>
-    </div>
 
+      <ShopCart></ShopCart>
+    </div>
+  <Food :food="food" ref="food"/>
   </div>
 </template>
 
@@ -53,6 +56,8 @@
   import BScroll from '@better-scroll/core'
 
   import CartControl from '../../../components/CartControl/CartControl'
+  import Food from '../../../components/Food/Food'
+  import ShopCart from '../../../components/ShopCart/ShopCart'
 
   export default {
     data(){
@@ -60,11 +65,14 @@
         scrolly:0,//右侧滑动的Y轴坐标
         tops:[],//所有右侧分类li的top组成的数组（第一次显示后就不再变化）
         nowi:0,
-        oldi:0
+        oldi:0,
+        food:{}//需要显示的food
       }
     },
     components:{
-      CartControl
+      CartControl,
+      Food,
+      ShopCart
     },
     mounted () {
 
@@ -74,7 +82,8 @@
           this._initTops()
         })
       })
-
+      const menuHeight=this.$refs.menuWrapper.clientHeight
+      this.overMenuNum=parseInt(menuHeight/54)
     },
     computed:{
       ...mapState(['goods']),
@@ -91,13 +100,21 @@
         //返回结果
         this.nowi=index
 
-        const menuHeight=this.$refs.menuWrapper.clientHeight
-        const overMenuNum=parseInt(menuHeight/54)
-        if(this.nowi>=overMenuNum-1&&this.nowi!==this.oldi){
-          console.log(this.nowi)
-          this.oldi=this.nowi
-          this.menuScroll.scrollTo(0,-53*(this.nowi-overMenuNum+1),300)
+        if(this.nowi>this.oldi){
+          if(this.nowi>=this.overMenuNum-1){
+            console.log(this.nowi)
+            this.oldi=this.nowi
+            this.menuScroll.scrollTo(0,-53*(this.nowi-this.overMenuNum+1),300)
+          }
         }
+        if(this.nowi<this.oldi){
+          if(this.nowi<=this.tops.length-this.overMenuNum-1){
+            console.log(this.nowi)
+            this.oldi=this.nowi
+            this.menuScroll.scrollTo(0,-53*(this.nowi),300)
+          }
+        }
+
         return index
       }
     },
@@ -108,14 +125,11 @@
         this.menuScroll=new BScroll('.menu-wrapper',{
           click:true,
           bounce: false,
-          swipeTime:500
         })
         this.foodsScrool=new BScroll('.foods-wrapper',{
           probeType:2,
           click:true,
           bounce: false,
-          swipeTime:500,
-          momentumLimitTime:500
         })
         //给右侧列表绑定scroll
         this.foodsScrool.on('scroll',({x,y})=>{
@@ -148,6 +162,13 @@
         const y=this.tops[index]
         this.scrolly=y
         this.foodsScrool.scrollTo(0,-y,300)
+      },
+      //显示点击的food
+      showFood(food){
+        //设置food
+        this.food=food
+        //显示food(父组件调用Food子组件的方法)
+        this.$refs.food.toggleShow()
       }
     }
   }
